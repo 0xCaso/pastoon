@@ -17,6 +17,12 @@ type ClickEvent = import('systray2').ClickEvent
 import { isValidJson, toToon, toJson } from './core.js'
 import { readConfig, writeConfig } from './config.js'
 
+// 16×16 dark-gray PNG with white "P" glyph, base64-encoded.
+// systray2's Go binary always calls SetIcon and crashes on an empty string —
+// a valid icon must always be provided.
+const TRAY_ICON =
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAJUlEQVR42mMwIhEwkKnhPyogSgOyKB49g1oDRZ4eGRpon/iIBwDmzM1CkSjSmwAAAABJRU5ErkJggg=='
+
 /**
  * systray2 ships its tray binary without the execute bit set, and its internal
  * chmod call silently swallows errors. We fix permissions before instantiating
@@ -92,7 +98,7 @@ export function startTray(): void {
 
   const systray: SysTray = new SysTrayClass({
     menu: {
-      icon: '',
+      icon: TRAY_ICON,
       title: '[P]',
       tooltip: 'pastoon — JSON → TOON clipboard converter',
       items: [
