@@ -55,7 +55,7 @@ function ensureTrayBinExecutable(): void {
   }
 }
 
-export function startTray(): void {
+export async function startTray(): Promise<void> {
   ensureTrayBinExecutable()
   let config = readConfig()
   let lastOriginalJson: string | null = null
@@ -114,6 +114,10 @@ export function startTray(): void {
     debug: false,
     copyDir: true,
   })
+
+  // Wait for the Go binary to signal ready before continuing.
+  // This also ensures the child process pipe keeps the Node event loop alive.
+  await systray.ready()
 
   systray.onClick((action: ClickEvent) => {
     const { item } = action

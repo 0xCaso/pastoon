@@ -26,8 +26,7 @@ const cli = Cli.create('pastoon', {
 
     // --tray: start background menu bar process
     if (c.options.tray) {
-      startTray()
-      return // startTray() keeps the process alive via systray2's native binary
+      return startTray() // async; awaiting ready() keeps the process alive via the systray child process
     }
 
     // --pipe: stdin → stdout conversion
