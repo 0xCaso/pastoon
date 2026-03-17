@@ -17,11 +17,12 @@ type ClickEvent = import('systray2').ClickEvent
 import { isValidJson, toToon, toJson } from './core.js'
 import { readConfig, writeConfig } from './config.js'
 
-// 16×16 dark-gray PNG with white "P" glyph, base64-encoded.
+// 18×18 black-on-transparent PNG with "P" glyph, base64-encoded.
+// isTemplateIcon: true lets macOS auto-invert for dark/light mode.
 // systray2's Go binary always calls SetIcon and crashes on an empty string —
 // a valid icon must always be provided.
 const TRAY_ICON =
-  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAJUlEQVR42mMwIhEwkKnhPyogSgOyKB49g1oDRZ4eGRpon/iIBwDmzM1CkSjSmwAAAABJRU5ErkJggg=='
+  'iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAKklEQVR42mNgGOzgPwFMNYP+k2oQqXIj0SCqBTbVop9qCXLUIDoYNPAAAGUiPcOz0vpHAAAAAElFTkSuQmCC'
 
 /**
  * systray2 ships its tray binary without the execute bit set, and its internal
@@ -99,7 +100,8 @@ export async function startTray(): Promise<void> {
   const systray: SysTray = new SysTrayClass({
     menu: {
       icon: TRAY_ICON,
-      title: '[P]',
+      isTemplateIcon: true,
+      title: '',
       tooltip: 'pastoon — JSON → TOON clipboard converter',
       items: [
         itemToggle,
