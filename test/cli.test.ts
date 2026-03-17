@@ -40,4 +40,16 @@ describe('pastoon CLI smoke tests', () => {
     expect(output).toContain('pastoon')
     expect(output).toContain('setup')
   })
+
+  it('--pipe --reverse converts TOON from stdin back to JSON', () => {
+    // first get TOON output
+    const toon = execSync(`echo '{"name":"Alice"}' | node dist/cli.js --pipe`, {
+      encoding: 'utf8',
+    }).trim()
+    // then round-trip back through --pipe --reverse
+    const json = execSync(`echo '${toon}' | node dist/cli.js --pipe --reverse`, {
+      encoding: 'utf8',
+    }).trim()
+    expect(JSON.parse(json)).toEqual({ name: 'Alice' })
+  })
 })

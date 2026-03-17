@@ -36,7 +36,11 @@ const cli = Cli.create('pastoon', {
       process.stdin.on('data', (chunk: Buffer) => chunks.push(chunk))
       process.stdin.on('end', () => {
         const input = Buffer.concat(chunks).toString('utf8').trim()
-        if (isValidJson(input)) {
+        if (c.options.reverse) {
+          // TOON → JSON
+          process.stdout.write(toJson(input) + '\n')
+        } else if (isValidJson(input)) {
+          // JSON → TOON
           process.stdout.write(
             toToon(input, { delimiter: cfg.delimiter, keyFolding: cfg.keyFolding }) + '\n',
           )

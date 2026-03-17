@@ -1,10 +1,15 @@
 import { createRequire } from 'node:module'
+import { chmodSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { homedir } from 'node:os'
 import clipboardy from 'clipboardy'
 
 const require = createRequire(import.meta.url)
 // systray2 is CommonJS; `.default` holds the class
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const _systrayModule = require('systray2') as { default: typeof import('systray2')['default'] }
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const _systrayPkg = require('systray2/package.json') as { version: string }
 const SysTrayClass = _systrayModule.default
 type SysTray = import('systray2').default
 type MenuItem = import('systray2').MenuItem
@@ -12,7 +17,40 @@ type ClickEvent = import('systray2').ClickEvent
 import { isValidJson, toToon, toJson } from './core.js'
 import { readConfig, writeConfig } from './config.js'
 
+/**
+ * systray2 ships its tray binary without the execute bit set, and its internal
+ * chmod call silently swallows errors. We fix permissions before instantiating
+ * SysTrayClass so the spawn doesn't fail with EACCES.
+ */
+function ensureTrayBinExecutable(): void {
+  const binName = `tray_darwin_release`
+  // systray2 with copyDir:true caches the binary in ~/.cache/node-systray/<version>/
+  const cachedPath = join(
+    homedir(),
+    '.cache',
+    'node-systray',
+    _systrayPkg.version,
+    binName,
+  )
+  // Also fix the bundled source binary so the first copy is already executable
+  const sourcePath = join(
+    new URL('..', import.meta.url).pathname,
+    'node_modules',
+    'systray2',
+    'traybin',
+    binName,
+  )
+  for (const p of [cachedPath, sourcePath]) {
+    try {
+      if (existsSync(p)) chmodSync(p, 0o755)
+    } catch {
+      // best-effort
+    }
+  }
+}
+
 export function startTray(): void {
+  ensureTrayBinExecutable()
   let config = readConfig()
   let lastOriginalJson: string | null = null
   let lastClipboard = ''
