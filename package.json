@@ -1,0 +1,37 @@
+{
+  "name": "pastoon",
+  "version": "0.1.0",
+  "description": "Auto-convert clipboard JSON to TOON — 40% fewer LLM tokens",
+  "type": "module",
+  "bin": { "pastoon": "dist/cli.js" },
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "files": ["dist", "docs/SETUP.md", "docs/SKILL.md"],
+  "dependencies": {
+    "@toon-format/toon": "^2.1.0",
+    "clipboardy": "^5.3.1",
+    "incur": "^0.3.4",
+    "systray2": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "keywords": ["toon", "json", "clipboard", "llm", "tokens", "mcp"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xCaso/pastoon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/0xCaso/pastoon/issues"
+  },
+  "homepage": "https://github.com/0xCaso/pastoon#readme"
+}
