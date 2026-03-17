@@ -1,5 +1,14 @@
-import SysTray, { MenuItem } from 'systray2'
+import { createRequire } from 'node:module'
 import clipboardy from 'clipboardy'
+
+const require = createRequire(import.meta.url)
+// systray2 is CommonJS; `.default` holds the class
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const _systrayModule = require('systray2') as { default: typeof import('systray2')['default'] }
+const SysTrayClass = _systrayModule.default
+type SysTray = import('systray2').default
+type MenuItem = import('systray2').MenuItem
+type ClickEvent = import('systray2').ClickEvent
 import { isValidJson, toToon, toJson } from './core.js'
 import { readConfig, writeConfig } from './config.js'
 
@@ -43,18 +52,18 @@ export function startTray(): void {
     enabled: true,
   }
 
-  const systray = new SysTray({
+  const systray: SysTray = new SysTrayClass({
     menu: {
       icon: '',
       title: '[P]',
       tooltip: 'pastoon — JSON → TOON clipboard converter',
       items: [
         itemToggle,
-        SysTray.separator,
+        SysTrayClass.separator,
         itemConvertNow,
         itemUndo,
         itemReverse,
-        SysTray.separator,
+        SysTrayClass.separator,
         itemQuit,
       ],
     },
@@ -62,7 +71,7 @@ export function startTray(): void {
     copyDir: true,
   })
 
-  systray.onClick((action) => {
+  systray.onClick((action: ClickEvent) => {
     const { item } = action
 
     if (item === itemToggle) {
