@@ -1,10 +1,10 @@
 # pastoon — Coding Agent Workflow Guide
 
-pastoon exposes MCP tools for converting between JSON and TOON format. Use these tools to reduce token usage when working with JSON data in your reasoning context.
+pastoon is built with [incur](https://github.com/wevm/incur) — every command is available as both a CLI tool and an MCP tool automatically. Use these commands to reduce token usage when working with JSON data in your reasoning context.
 
 ## When to use `json-to-toon`
 
-Call `pastoon json-to-toon` (or the `json_to_toon` MCP tool) **before** including large JSON data in your reasoning context:
+Call `pastoon json-to-toon` **before** including large JSON data in your reasoning context:
 
 - JSON responses from API calls (more than ~10 lines)
 - JSON fixtures or test data you need to reason over
@@ -19,7 +19,7 @@ pastoon json-to-toon '{"users":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}'
 
 ## When to use `toon-to-json`
 
-Call `pastoon toon-to-json` (or the `toon_to_json` MCP tool) when you need to:
+Call `pastoon toon-to-json` when you need to:
 
 - Modify TOON data and write valid JSON back to a file
 - Pass JSON to an API that requires it
@@ -37,22 +37,25 @@ pastoon toon-to-json 'users[2]{id,name}:
 - **JSON being written to a file** — write the original JSON, not TOON
 - **JSON you won't reason over** — if you're just passing it through, skip conversion
 
-## MCP tools
+## Available tools
 
-When configured as an MCP server (`pastoon mcp add`), pastoon exposes:
-
-| Tool | Description |
-|------|-------------|
-| `json-to-toon` | Convert a JSON string to TOON (40% fewer tokens) |
+| Command | Description |
+|---------|-------------|
+| `json-to-toon` | Convert a JSON string to TOON (~40% fewer tokens). Accepts `--delimiter` (`,` `\t` `\|`) and `--keyFolding` (`off` `safe`). |
 | `toon-to-json` | Convert a TOON string back to JSON |
+
+These commands are exposed automatically as MCP tools via incur (`pastoon mcp add`).
 
 ## CLI reference
 
 ```bash
-pastoon                  # JSON → TOON (clipboard one-shot)
-pastoon --reverse        # TOON → JSON (clipboard one-shot)
-pastoon --pipe           # stdin → stdout (for scripts)
-pastoon json-to-toon '…' # convert JSON string directly
-pastoon toon-to-json '…' # convert TOON string directly
-pastoon setup            # install menu bar tray + LaunchAgent
+pastoon                       # JSON → TOON (clipboard one-shot)
+pastoon --reverse             # TOON → JSON (clipboard one-shot)
+pastoon --pipe                # stdin → stdout
+pastoon --pipe --reverse      # TOON stdin → JSON stdout
+pastoon json-to-toon '…'     # convert JSON string directly
+pastoon toon-to-json '…'     # convert TOON string directly
+pastoon setup                 # install background service + start tray
+pastoon skills add            # register as on-demand agent skills (recommended)
+pastoon mcp add               # register as MCP server (fallback)
 ```

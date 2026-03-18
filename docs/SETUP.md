@@ -15,14 +15,26 @@ pastoon setup
 
 That's it. From now on, every time you copy JSON, pastoon silently converts it to TOON before you paste.
 
-To pause: click `[P]` in the menu bar → uncheck "Auto-convert JSON".
-To resume: re-check it.
+Tray menu options:
+- **Auto-convert JSON** — toggle auto-conversion on/off
+- **Convert clipboard now** — manually trigger one conversion
+- **Undo (restore JSON)** — restore the last original JSON
+- **Reverse (TOON → JSON)** — convert TOON in clipboard back to JSON
+- **Quit** — stop pastoon
 
 ---
 
-## Tier 2 — MCP server for coding agents
+## Tier 2 — Agent integration
 
-Register pastoon as an MCP server so your coding agents (Claude Code, OpenCode, Cursor, etc.) can call `json_to_toon` and `toon_to_json` directly in-context.
+pastoon is built with [incur](https://github.com/wevm/incur), which exposes every command as both a CLI tool and an MCP tool automatically.
+
+**Skills (recommended):** register pastoon commands as on-demand skills — lower token cost, TOON output natively.
+
+```bash
+pastoon skills add
+```
+
+**MCP (fallback):** for agents that only support MCP, pastoon also works as an MCP server with no extra setup.
 
 ```bash
 pastoon mcp add
@@ -30,7 +42,7 @@ pastoon mcp add
 
 This auto-detects your installed agents and writes the MCP config for each.
 
-**Available MCP tools:**
+**Available tools (both interfaces):**
 - `json-to-toon` — convert a JSON string to TOON (40% fewer tokens)
 - `toon-to-json` — convert a TOON string back to JSON
 
@@ -49,13 +61,14 @@ Pipe mode (stdin → stdout):
 echo '{"name":"Alice"}' | pastoon --pipe
 curl https://api.example.com/data | pastoon --pipe | llm "summarize this"
 cat data.json | pastoon --pipe > data.toon
+echo 'users[2]{id,name}:\n1,Alice\n2,Bob' | pastoon --pipe --reverse
 ```
 
 ---
 
 ## Tier 4 — Uninstall / pause
 
-Stop the tray (keeps LaunchAgent, restarts on next login):
+Stop the tray (keeps background service, restarts on next login):
 ```bash
 pastoon stop
 ```
@@ -65,7 +78,7 @@ Start again:
 pastoon start
 ```
 
-Full removal (removes LaunchAgent, config, and tray):
+Full removal (removes background service, config, and tray):
 ```bash
 pastoon uninstall
 npm uninstall -g pastoon

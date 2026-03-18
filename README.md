@@ -30,24 +30,28 @@ That's it. The `[P]` icon appears in your menu bar. Every JSON you copy is autom
 
 Supports macOS (LaunchAgent), Linux (systemd user service), and Windows (registry Run key).
 
-## Agent install
+## Agent integration
 
-If you use a coding agent (Claude Code, OpenCode, Cursor, Windsurf), give it [SETUP.md](./docs/SETUP.md):
+pastoon is built with [incur](https://github.com/wevm/incur) — a CLI framework that makes every command available as both a CLI tool and an MCP tool automatically.
 
-> "Set up pastoon for me using the instructions in docs/SETUP.md"
-
-## MCP server
-
-pastoon exposes two MCP tools for agents working with JSON in context:
+**Skills (recommended):** agents discover and load pastoon commands on-demand, with TOON output natively.
 
 ```bash
-pastoon mcp add   # register with detected coding agents
+pastoon skills add   # register with your coding agent (Claude Code, OpenCode, etc.)
+```
+
+**MCP (fallback):** for agents that only support MCP, pastoon also works as an MCP server — no extra code needed, incur provides it automatically.
+
+```bash
+pastoon mcp add   # register as MCP server with detected coding agents
 pastoon --mcp     # start MCP server manually
 ```
 
-**Tools:**
+**Available tools (both interfaces):**
 - `json-to-toon` — convert JSON string to TOON (use before reasoning over large JSON)
 - `toon-to-json` — convert TOON string back to JSON
+
+Or give your agent [SETUP.md](./docs/SETUP.md) and say: "Set up pastoon for me."
 
 ## CLI
 
@@ -55,12 +59,18 @@ pastoon --mcp     # start MCP server manually
 pastoon            # JSON → TOON (clipboard)
 pastoon --reverse  # TOON → JSON (clipboard)
 pastoon --pipe     # stdin → stdout (for scripts)
+pastoon --pipe --reverse  # TOON stdin → JSON stdout
+
+pastoon json-to-toon '<json>'   # convert JSON string directly
+pastoon toon-to-json '<toon>'   # convert TOON string directly
 
 pastoon setup      # install background service + start tray
 pastoon stop       # stop tray
 pastoon start      # start tray
 pastoon uninstall  # full removal
 ```
+
+`json-to-toon` also accepts `--delimiter` (`,` `\t` `|`) and `--keyFolding` (`off` `safe`).
 
 ## What is TOON?
 
