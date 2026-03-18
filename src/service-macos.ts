@@ -5,7 +5,6 @@ import { execSync } from 'node:child_process'
 
 const LAUNCH_AGENTS_DIR = join(homedir(), 'Library', 'LaunchAgents')
 const PLIST_PATH = join(LAUNCH_AGENTS_DIR, 'com.pastoon.plist')
-const LABEL = 'com.pastoon'
 
 function getNodeBin(): string {
   return process.execPath
@@ -32,7 +31,7 @@ function buildPlist(nodeBin: string, scriptPath: string): string {
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>${LABEL}</string>
+  <string>com.pastoon</string>
   <key>ProgramArguments</key>
   <array>
     <string>${nodeBin}</string>
@@ -74,11 +73,11 @@ export function uninstall(): void {
 }
 
 export function start(): void {
-  execSync(`launchctl start "${LABEL}"`, { stdio: 'inherit' })
+  execSync(`launchctl load "${PLIST_PATH}"`, { stdio: 'inherit' })
 }
 
 export function stop(): void {
-  execSync(`launchctl stop "${LABEL}"`, { stdio: 'inherit' })
+  execSync(`launchctl unload "${PLIST_PATH}"`, { stdio: 'inherit' })
 }
 
 export function isInstalled(): boolean {
