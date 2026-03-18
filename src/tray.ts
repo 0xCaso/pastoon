@@ -136,11 +136,15 @@ export async function startTray(): Promise<void> {
       const text = clipboardy.readSync()
       if (isValidJson(text)) {
         lastOriginalJson = text
-        const toon = toToon(text, { delimiter: config.delimiter, keyFolding: config.keyFolding })
-        clipboardy.writeSync(toon)
-        lastClipboard = toon
-        itemUndo.enabled = true
-        systray.sendAction({ type: 'update-item', item: itemUndo })
+        try {
+          const toon = toToon(text, { delimiter: config.delimiter, keyFolding: config.keyFolding })
+          clipboardy.writeSync(toon)
+          lastClipboard = toon
+          itemUndo.enabled = true
+          systray.sendAction({ type: 'update-item', item: itemUndo })
+        } catch {
+          // encode failed — leave clipboard unchanged
+        }
       }
       return
     }
@@ -192,11 +196,15 @@ export async function startTray(): Promise<void> {
 
     if (isValidJson(current)) {
       lastOriginalJson = current
-      const toon = toToon(current, { delimiter: config.delimiter, keyFolding: config.keyFolding })
-      clipboardy.writeSync(toon)
-      lastClipboard = toon
-      itemUndo.enabled = true
-      systray.sendAction({ type: 'update-item', item: itemUndo })
+      try {
+        const toon = toToon(current, { delimiter: config.delimiter, keyFolding: config.keyFolding })
+        clipboardy.writeSync(toon)
+        lastClipboard = toon
+        itemUndo.enabled = true
+        systray.sendAction({ type: 'update-item', item: itemUndo })
+      } catch {
+        // encode failed — leave clipboard unchanged
+      }
     } else {
       // New non-JSON clipboard content — clear undo buffer
       lastOriginalJson = null

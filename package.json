@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "files": ["dist", "docs/SETUP.md", "docs/SKILL.md"],
+  "files": ["dist", "docs/SETUP.md", "docs/SKILL.md", "LICENSE"],
+  "engines": { "node": ">=18" },
   "dependencies": {
     "@toon-format/toon": "^2.1.0",
     "clipboardy": "^5.3.1",

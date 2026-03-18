@@ -2,9 +2,10 @@
 import { Cli, z } from 'incur'
 import clipboardy from 'clipboardy'
 import { execSync } from 'node:child_process'
-import { rmSync } from 'node:fs'
-import { join } from 'node:path'
+import { rmSync, readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 import { isValidJson, toToon, toJson } from './core.js'
 import { installLaunchAgent, uninstallLaunchAgent } from './launchagent.js'
 import { readConfig } from './config.js'
@@ -13,8 +14,13 @@ import { jsonToToonHandler, toonToJsonHandler } from './mcp.js'
 
 const PLIST_LABEL = 'com.pastoon'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8')) as {
+  version: string
+}
+
 const cli = Cli.create('pastoon', {
-  version: '0.1.0',
+  version: pkg.version,
   description: 'Auto-convert clipboard JSON to TOON — 40% fewer LLM tokens',
   options: z.object({
     reverse: z.boolean().optional().describe('Convert TOON in clipboard back to JSON'),
@@ -37,7 +43,12 @@ const cli = Cli.create('pastoon', {
         const input = Buffer.concat(chunks).toString('utf8').trim()
         if (c.options.reverse) {
           // TOON → JSON
-          process.stdout.write(toJson(input) + '\n')
+          try {
+            process.stdout.write(toJson(input) + '\n')
+          } catch {
+            process.stderr.write('pastoon: input is not valid TOON\n')
+            process.exit(1)
+          }
         } else if (isValidJson(input)) {
           // JSON → TOON
           process.stdout.write(
@@ -64,7 +75,12 @@ const cli = Cli.create('pastoon', {
     }
 
     // Default: JSON → TOON one-shot
-    const text = clipboardy.readSync()
+    let text: string
+    try {
+      text = clipboardy.readSync()
+    } catch {
+      return { converted: false, error: 'Could not read clipboard (headless or unsupported environment)' }
+    }
     if (isValidJson(text)) {
       const toon = toToon(text, { delimiter: cfg.delimiter, keyFolding: cfg.keyFolding })
       clipboardy.writeSync(toon)
