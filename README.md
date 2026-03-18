@@ -28,6 +28,8 @@ pastoon setup
 
 That's it. The `[P]` icon appears in your menu bar. Every JSON you copy is automatically converted.
 
+Supports macOS (LaunchAgent), Linux (systemd user service), and Windows (registry Run key).
+
 ## Agent install
 
 If you use a coding agent (Claude Code, OpenCode, Cursor, Windsurf), give it [SETUP.md](./docs/SETUP.md):
@@ -54,9 +56,9 @@ pastoon            # JSON → TOON (clipboard)
 pastoon --reverse  # TOON → JSON (clipboard)
 pastoon --pipe     # stdin → stdout (for scripts)
 
-pastoon setup      # install LaunchAgent + start tray
-pastoon stop       # pause tray
-pastoon start      # resume tray
+pastoon setup      # install background service + start tray
+pastoon stop       # stop tray
+pastoon start      # start tray
 pastoon uninstall  # full removal
 ```
 
