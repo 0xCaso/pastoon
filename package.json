@@ -1,6 +1,6 @@
 {
   "name": "pastoon",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Auto-convert clipboard JSON to TOON — 40% fewer LLM tokens",
   "type": "module",
   "bin": {
