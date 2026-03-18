@@ -1,18 +1,15 @@
 #!/usr/bin/env node
 import { Cli, z } from 'incur'
 import clipboardy from 'clipboardy'
-import { execSync } from 'node:child_process'
 import { rmSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { isValidJson, toToon, toJson } from './core.js'
-import { installLaunchAgent, uninstallLaunchAgent } from './launchagent.js'
+import { install as serviceInstall, uninstall as serviceUninstall, start as serviceStart, stop as serviceStop } from './service.js'
 import { readConfig } from './config.js'
 import { startTray } from './tray.js'
 import { jsonToToonHandler, toonToJsonHandler } from './mcp.js'
-
-const PLIST_LABEL = 'com.pastoon'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8')) as {
@@ -25,7 +22,7 @@ const cli = Cli.create('pastoon', {
   options: z.object({
     reverse: z.boolean().optional().describe('Convert TOON in clipboard back to JSON'),
     pipe: z.boolean().optional().describe('Read from stdin, write TOON to stdout'),
-    tray: z.boolean().optional().describe('Start menu bar tray (used by LaunchAgent)'),
+    tray: z.boolean().optional().describe('Start menu bar tray (used by background service)'),
   }),
   run(c) {
     const cfg = readConfig()
@@ -91,21 +88,21 @@ const cli = Cli.create('pastoon', {
 })
 
 cli.command('setup', {
-  description: 'Install LaunchAgent and start menu bar tray',
+  description: 'Install background service and start menu bar tray',
   run() {
-    installLaunchAgent()
+    serviceInstall()
     return { installed: true, autostart: true }
   },
 })
 
 cli.command('stop', {
-  description: 'Stop the menu bar tray (does not remove LaunchAgent)',
+  description: 'Stop the menu bar tray (does not remove service)',
   run() {
     try {
-      execSync(`launchctl stop "${PLIST_LABEL}"`)
+      serviceStop()
       return { stopped: true }
     } catch {
-      return { stopped: false, error: 'Service not running or launchctl failed' }
+      return { stopped: false, error: 'Service not running or stop failed' }
     }
   },
 })
@@ -114,7 +111,7 @@ cli.command('start', {
   description: 'Start the menu bar tray',
   run() {
     try {
-      execSync(`launchctl start "${PLIST_LABEL}"`)
+      serviceStart()
       return { started: true }
     } catch {
       return { started: false, error: 'Service not loaded. Run: pastoon setup' }
@@ -123,9 +120,9 @@ cli.command('start', {
 })
 
 cli.command('uninstall', {
-  description: 'Remove LaunchAgent, stop tray, and delete config',
+  description: 'Remove background service, stop tray, and delete config',
   run() {
-    uninstallLaunchAgent()
+    serviceUninstall()
     rmSync(join(homedir(), '.pastoon'), { recursive: true, force: true })
     return { uninstalled: true }
   },
