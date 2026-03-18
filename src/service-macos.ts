@@ -8,26 +8,15 @@ const PLIST_PATH = join(LAUNCH_AGENTS_DIR, 'com.pastoon.plist')
 const LABEL = 'com.pastoon'
 
 function getNodeBin(): string {
-  // Resolve the full path to the node binary currently running this script.
-  // process.execPath is always the absolute path to node — works with NVM,
-  // Homebrew, system node, etc. — no PATH lookup needed.
   return process.execPath
 }
 
 function getPastoonScript(): string {
-  // The pastoon CLI entry point as an absolute path to the JS file,
-  // so launchctl can run `node /path/to/cli.js --tray` without needing
-  // the shebang or PATH to contain the node binary.
   try {
-    // Resolve symlink: `which pastoon` → e.g. ~/.nvm/.../bin/pastoon
-    // That file's first line is `#!/usr/bin/env node`, so we use it directly
-    // with an explicit node path instead.
     const pastoonBin = execSync('which pastoon', { encoding: 'utf8' }).trim()
-    // Dereference the symlink to get the real .js file if it's a symlink
     const resolved = execSync(`readlink "${pastoonBin}" 2>/dev/null || echo "${pastoonBin}"`, {
       encoding: 'utf8',
     }).trim()
-    // If readlink returned a relative path, resolve it against the bin dir
     if (resolved.startsWith('/')) return resolved
     const binDir = pastoonBin.replace(/\/[^/]+$/, '')
     return join(binDir, resolved)
@@ -63,7 +52,7 @@ function buildPlist(nodeBin: string, scriptPath: string): string {
 `
 }
 
-export function installLaunchAgent(): void {
+export function install(): void {
   mkdirSync(LAUNCH_AGENTS_DIR, { recursive: true })
   const nodeBin = getNodeBin()
   const scriptPath = getPastoonScript()
@@ -75,7 +64,7 @@ export function installLaunchAgent(): void {
   }
 }
 
-export function uninstallLaunchAgent(): void {
+export function uninstall(): void {
   try {
     execSync(`launchctl unload "${PLIST_PATH}"`, { stdio: 'inherit' })
   } catch {
@@ -84,6 +73,14 @@ export function uninstallLaunchAgent(): void {
   if (existsSync(PLIST_PATH)) rmSync(PLIST_PATH)
 }
 
-export function isLaunchAgentInstalled(): boolean {
+export function start(): void {
+  execSync(`launchctl start "${LABEL}"`, { stdio: 'inherit' })
+}
+
+export function stop(): void {
+  execSync(`launchctl stop "${LABEL}"`, { stdio: 'inherit' })
+}
+
+export function isInstalled(): boolean {
   return existsSync(PLIST_PATH)
 }
