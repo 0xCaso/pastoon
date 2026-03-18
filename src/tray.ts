@@ -30,7 +30,12 @@ const TRAY_ICON =
  * SysTrayClass so the spawn doesn't fail with EACCES.
  */
 function ensureTrayBinExecutable(): void {
-  const binName = `tray_darwin_release`
+  const binName =
+    process.platform === 'win32'
+      ? 'tray_windows_release.exe'
+      : process.platform === 'linux'
+        ? 'tray_linux_release'
+        : 'tray_darwin_release'
   // systray2 with copyDir:true caches the binary in ~/.cache/node-systray/<version>/
   const cachedPath = join(
     homedir(),
